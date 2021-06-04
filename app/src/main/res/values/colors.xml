@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#0277BD</color>
+    <color name="colorPrimaryDark">#01579B</color>
+    <color name="colorAccent">#FFFFFF</color>
+    <color name="topbar">#FFC107</color>
+    <color name="actionbar">#FFEB3B</color>
+    <color name="disAbled">#535353</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="successGreen">#0DCB62</color>
+    <color name="brikeRed">#EF2929</color>
+    <color name="light_gray">#E8E6E6</color>
+    <color name="viewAll">#0288D1</color>
+    <color name="red">#FF0026</color>
+    <color name="gray">#B1B0B0</color>
+</resources>

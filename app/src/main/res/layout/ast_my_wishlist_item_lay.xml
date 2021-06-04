@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/white"
+    android:elevation="3dp"
+    android:layout_marginBottom="4dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/myWihslist_productImg"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/i_oppo_a5" />
+
+    <TextView
+        android:id="@+id/myWihslist_productTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Oppo 5S"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/removeBtn"
+        app:layout_constraintStart_toEndOf="@+id/myWihslist_productImg"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/myWihslist_productRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/s_bigslider_background"
+        android:backgroundTint="@color/successGreen"
+        android:drawableRight="@drawable/ic_star"
+        android:drawablePadding="1dp"
+        android:paddingLeft="3dp"
+        android:paddingRight="2dp"
+        android:text="4.5"
+        android:textColor="@color/white"
+        android:textSize="9sp"
+        app:layout_constraintStart_toStartOf="@+id/myWihslist_productTitle"
+        app:layout_constraintTop_toBottomOf="@+id/myWihslist_productTitle" />
+
+    <TextView
+        android:id="@+id/myWihslist_productTotalrate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="(734) ratings"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="@+id/myWihslist_productRating"
+        app:layout_constraintStart_toEndOf="@+id/myWihslist_productRating"
+        app:layout_constraintTop_toTopOf="@+id/myWihslist_productRating" />
+
+    <TextView
+        android:id="@+id/myWihslist_productPriceBig"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Rs.766"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/myWihslist_productRating"
+        app:layout_constraintTop_toBottomOf="@+id/myWihslist_productRating" />
+
+    <TextView
+        android:id="@+id/myWihslist_productPriceSml"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:text="Rs.12123"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/myWihslist_productPriceBig"
+        app:layout_constraintStart_toEndOf="@+id/myWihslist_productPriceBig" />
+
+    <ImageButton
+        android:id="@+id/removeBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+
+        android:background="@color/white"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_remove_24" />
+</androidx.constraintlayout.widget.ConstraintLayout>

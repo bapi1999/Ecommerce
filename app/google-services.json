@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "514896917373",
+    "firebase_url": "https://ecomarce1.firebaseio.com",
+    "project_id": "ecomarce1",
+    "storage_bucket": "ecomarce1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:514896917373:android:abff9fd05962d95d971214",
+        "android_client_info": {
+          "package_name": "com.sbdevs.ecomarse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "514896917373-dbitlvd2a77ck9gm9fvgujmshv435e2j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sbdevs.ecomarse",
+            "certificate_hash": "b08509e7d389df83e38a9c077f8efbcfd3d2e703"
+          }
+        },
+        {
+          "client_id": "514896917373-pti1615m9tbgaharaf0ih3fnvapfdo23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMYBGuhqB9-fp4nEAo9bUllDNLv5FhTTI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "514896917373-pti1615m9tbgaharaf0ih3fnvapfdo23.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
