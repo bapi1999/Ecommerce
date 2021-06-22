@@ -35,6 +35,7 @@ import static com.sbdevs.ecommerce.activities.DeliveryActivity.SELECT_ADDRESS;
 import static com.sbdevs.ecommerce.activities.MyAccountActivity.MANNAGE_ADDRESS;
 
 public class MyAddressActivity extends AppCompatActivity {
+
     private RecyclerView addressRecycler;
     private static AddressAdapter addressAdapter;
     private List<AddressModel> addressList = new ArrayList<AddressModel>();

@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.sbdevs.ecommerce.R;
@@ -20,12 +21,13 @@ import com.sbdevs.ecommerce.activities.DBqueriesClass;
 import com.sbdevs.ecommerce.activities.MyCartActivity;
 import com.sbdevs.ecommerce.adapters.CartItemAdapter;
 
-
 public class MyCartFragment extends Fragment {
 
     private RecyclerView mycartRecycler;
     public static CartItemAdapter cartItemAdapter;
-    Button cartContinueBtn;
+    private Button cartContinueBtn;
+    private LinearLayout cartbottomlayout;
+
     private Dialog loadingDialog;
     private TextView totalAmount;
 

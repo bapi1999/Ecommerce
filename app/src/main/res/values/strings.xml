@@ -54,5 +54,6 @@
         <item>Uttar Pradesh</item>
         <item>West Bengal</item>
     </string-array>
+    <string name="title_activity_main3">MainActivity</string>
 
 </resources>

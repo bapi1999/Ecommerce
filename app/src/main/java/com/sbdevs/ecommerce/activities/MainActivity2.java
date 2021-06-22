@@ -28,8 +28,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.sbdevs.ecommerce.R;
+import com.sbdevs.ecommerce.databinding.ActivityMainBinding;
 import com.sbdevs.ecommerce.fragments.LoginFragment;
-import com.sbdevs.ecommerce.fragments.MyCartFragment;
 import com.sbdevs.ecommerce.fragments.SignUpFragment;
 import com.sbdevs.ecommerce.ui.home.HomeFragment;
 
@@ -53,6 +53,7 @@ import static com.sbdevs.ecommerce.activities.RegisterActivity.setSignupFragment
 public class  MainActivity2 extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private AppBarConfiguration mAppBarConfiguration;
+    private ActivityMainBinding binding;
     private FrameLayout frameLayout;
     private DrawerLayout drawer;
     NavigationView navigationView;
@@ -63,7 +64,7 @@ public class  MainActivity2 extends AppCompatActivity implements NavigationView.
     private static int CURRENT_FRAGMENT;
     private FirebaseUser currentUser;
     public static boolean lockMode = false;
-    NavController navController;
+
     private TextView badgeCount;
     public static Activity mainActivity;
 
@@ -109,11 +110,11 @@ public class  MainActivity2 extends AppCompatActivity implements NavigationView.
         ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         if (networkInfo != null && networkInfo.isConnected() == true) {
-            navController = Navigation.findNavController(this, R.id.nav_host_fragment);
             NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         } else {
-            navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+
             NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
             NavigationUI.setupWithNavController(navigationView, navController); //todo-it must disabled==============================
         }
@@ -144,16 +145,16 @@ public class  MainActivity2 extends AppCompatActivity implements NavigationView.
                             DBqueriesClass.fullname = task.getResult().getString("name");
                             DBqueriesClass.profilePic = task.getResult().getString("profilePic");
 
-                            navProfileName.setText(DBqueriesClass.fullname);
-                            navProfileEmail.setText(DBqueriesClass.email);
-                            if (DBqueriesClass.profilePic.equals("")) {
-                                //Glide.with(MainActivity2.this).load(R.drawable.i_user).into(navProfilePic);
-                                navAddImage.setVisibility(View.VISIBLE);
-                            } else {
-                                Glide.with(MainActivity2.this).load(DBqueriesClass.profilePic)
-                                        .apply(new RequestOptions().placeholder(R.drawable.i_user)).into(navProfilePic);
-                                navAddImage.setVisibility(View.INVISIBLE);
-                            }
+//                            navProfileName.setText(DBqueriesClass.fullname);
+//                            navProfileEmail.setText(DBqueriesClass.email);
+//                            if (DBqueriesClass.profilePic.equals("")) {
+//                                //Glide.with(MainActivity2.this).load(R.drawable.i_user).into(navProfilePic);
+//                                navAddImage.setVisibility(View.VISIBLE);
+//                            } else {
+//                                Glide.with(MainActivity2.this).load(DBqueriesClass.profilePic)
+//                                        .apply(new RequestOptions().placeholder(R.drawable.i_user)).into(navProfilePic);
+//                                navAddImage.setVisibility(View.INVISIBLE);
+//                            }
 
                         } else {
                             String error = task.getException().getMessage();
@@ -162,17 +163,17 @@ public class  MainActivity2 extends AppCompatActivity implements NavigationView.
                     }
                 });
             }else {
-                navProfileName.setText(DBqueriesClass.fullname);
-                navProfileEmail.setText(DBqueriesClass.email);
-                if (DBqueriesClass.profilePic.equals("")) {
-                    //Glide.with(MainActivity2.this).load(R.drawable.i_user).into(navProfilePic);
-                    navProfilePic.setImageResource(R.drawable.i_user);
-                    navAddImage.setVisibility(View.VISIBLE);
-                } else {
-                    Glide.with(MainActivity2.this).load(DBqueriesClass.profilePic)
-                            .apply(new RequestOptions().placeholder(R.drawable.i_user)).into(navProfilePic);
-                    navAddImage.setVisibility(View.INVISIBLE);
-                }
+//                navProfileName.setText(DBqueriesClass.fullname);
+//                navProfileEmail.setText(DBqueriesClass.email);
+//                if (DBqueriesClass.profilePic.equals("")) {
+//                    //Glide.with(MainActivity2.this).load(R.drawable.i_user).into(navProfilePic);
+//                    navProfilePic.setImageResource(R.drawable.i_user);
+//                    navAddImage.setVisibility(View.VISIBLE);
+//                } else {
+//                    Glide.with(MainActivity2.this).load(DBqueriesClass.profilePic)
+//                            .apply(new RequestOptions().placeholder(R.drawable.i_user)).into(navProfilePic);
+//                    navAddImage.setVisibility(View.INVISIBLE);
+//                }
             }
 
             navigationView.getMenu().getItem(navigationView.getMenu().size() - 1).setEnabled(true);
@@ -185,9 +186,9 @@ public class  MainActivity2 extends AppCompatActivity implements NavigationView.
 //TODO 3st division = OnCreateOptionsMenu ############################################################################################
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (CURRENT_FRAGMENT == HOME_FRAGMENT) {
-            getMenuInflater().inflate(R.menu.main_activity2, menu);
+        getMenuInflater().inflate(R.menu.main_activity2, menu);
 
+        if (CURRENT_FRAGMENT == HOME_FRAGMENT) {
             MenuItem cartItem = menu.findItem(R.id.main_cart);
             cartItem.setActionView(R.layout.ast_badge_lay);
             ImageView badgeIcon = cartItem.getActionView().findViewById(R.id.badge_icon);
@@ -250,7 +251,7 @@ public class  MainActivity2 extends AppCompatActivity implements NavigationView.
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }

@@ -538,6 +538,8 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     }
 
+
+
     @Override
     protected void onStart() {
         super.onStart();
