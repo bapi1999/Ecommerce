@@ -34,6 +34,7 @@ import com.sbdevs.ecommerce.fragments.LoginFragment;
 import com.sbdevs.ecommerce.fragments.SignUpFragment;
 import com.sbdevs.ecommerce.models.MyWishlistModel;
 import com.sbdevs.ecommerce.models.deliveryItemModel;
+import com.sbdevs.ecommerce.uploadImages.UploadImageActivity;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
@@ -493,35 +494,38 @@ public class ProductDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if (currentUser == null) {
-                    SignInUpDialog();
-                } else {
-                    loadingDialog.show();
-                    productDetailsActivity = ProductDetailActivity.this;
-                    DeliveryActivity.fromcart = false;
-                    DeliveryActivity.cartItemModelsList = new ArrayList<>();
-                    DeliveryActivity.cartItemModelsList.add(new deliveryItemModel(
-                            deliveryItemModel.CART_ITEM,
-                            productID,
-                            documentSnapshot.get("product_img_1").toString(),
-                            documentSnapshot.get("product_title").toString(),
-                            documentSnapshot.get("price_Rs").toString(),
-                            (long) 1,
-                            (boolean) documentSnapshot.get("in_stock"),
-                            (long) documentSnapshot.get("max_quantity"),
-                            (long) documentSnapshot.get("stock_quantity")));
-                    DeliveryActivity.cartItemModelsList.add(new deliveryItemModel(deliveryItemModel.TOTAL_AMOUNT_LAY));
+                Intent imageIntent = new Intent(ProductDetailActivity.this, UploadImageActivity.class);
+                startActivity(imageIntent);
 
-                    if (DBqueriesClass.addressModelList.size() == 0) {
-                        DBqueriesClass.loadAddresses(ProductDetailActivity.this, loadingDialog);
-                    } else {
-                        loadingDialog.dismiss();
-                        Intent i = new Intent(ProductDetailActivity.this, DeliveryActivity.class);
-                        startActivity(i);
-                    }
-
-
-                }
+//                if (currentUser == null) {
+//                    SignInUpDialog();
+//                } else {
+//                    loadingDialog.show();
+//                    productDetailsActivity = ProductDetailActivity.this;
+//                    DeliveryActivity.fromcart = false;
+//                    DeliveryActivity.cartItemModelsList = new ArrayList<>();
+//                    DeliveryActivity.cartItemModelsList.add(new deliveryItemModel(
+//                            deliveryItemModel.CART_ITEM,
+//                            productID,
+//                            documentSnapshot.get("product_img_1").toString(),
+//                            documentSnapshot.get("product_title").toString(),
+//                            documentSnapshot.get("price_Rs").toString(),
+//                            (long) 1,
+//                            (boolean) documentSnapshot.get("in_stock"),
+//                            (long) documentSnapshot.get("max_quantity"),
+//                            (long) documentSnapshot.get("stock_quantity")));
+//                    DeliveryActivity.cartItemModelsList.add(new deliveryItemModel(deliveryItemModel.TOTAL_AMOUNT_LAY));
+//
+//                    if (DBqueriesClass.addressModelList.size() == 0) {
+//                        DBqueriesClass.loadAddresses(ProductDetailActivity.this, loadingDialog);
+//                    } else {
+//                        loadingDialog.dismiss();
+//                        Intent i = new Intent(ProductDetailActivity.this, DeliveryActivity.class);
+//                        startActivity(i);
+//                    }
+//
+//
+//                }
             }
         });
 

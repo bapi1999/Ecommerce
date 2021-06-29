@@ -101,20 +101,23 @@ public class UpdateInfoFragment extends Fragment {
         changePicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     if (getContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                         Intent galleryIntent = new Intent(Intent.ACTION_PICK);
                         galleryIntent.setType("image/*");
                         startActivityForResult(galleryIntent, 1);
 
-                    }else {
-                        getActivity().requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},2);
+                        Toast.makeText(getContext(), "step ######", Toast.LENGTH_SHORT).show();
+                    } else {
+                        getActivity().requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 2);
+                        Toast.makeText(getContext(), "step ------", Toast.LENGTH_SHORT).show();
                     }
-                }else {
+                } else {
                     Intent galleryIntent = new Intent(Intent.ACTION_PICK);
                     galleryIntent.setType("image/*");
                     startActivityForResult(galleryIntent, 1);
+                    Toast.makeText(getContext(), "step !!!!!!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
