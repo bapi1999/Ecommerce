@@ -22,6 +22,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -38,12 +39,15 @@ public class UploadImageActivity extends AppCompatActivity {
     private Uri imageUri;
 
     private FirebaseUser user;
+    private FirebaseFirestore firebaseFirestore;
     private FirebaseStorage storage;
     private StorageReference storageReference1;
 
     private RecyclerView recyclerView;
     private List<UploadImageModel> imageModelList = new ArrayList<>();
     private UploadImageAdapter imageAdapter;
+    private int totalpic;
+    private boolean edit=false;
 
 
     @Override
@@ -54,15 +58,41 @@ public class UploadImageActivity extends AppCompatActivity {
         user = FirebaseAuth.getInstance().getCurrentUser();
         storage = FirebaseStorage.getInstance();
         storageReference1 = storage.getReference();
-//        storageReference1 = storage.getReference().child("profile/" + user.getUid() + ".jpg");
-
+        firebaseFirestore = FirebaseFirestore.getInstance();
 
         uploadBtn = findViewById(R.id.upload_button);
         selectBtn = findViewById(R.id.select_button);
 
         recyclerView = findViewById(R.id.uploaded_recycler);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(gridLayoutManager);
+
+        firebaseFirestore.collection("USERS")
+                .document(user.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull  Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    imageModelList.clear();
+                    totalpic = Integer.parseInt(task.getResult().get("totalPic").toString());
+                    edit = task.getResult().getBoolean("picAvailable");
+                    if (edit){
+                        for (int i = 0;i< (long)task.getResult().get("totalPic");i++){
+                            String imageUri = task.getResult().get("uploadpic"+i).toString();
+                            UploadImageModel imageModel = new UploadImageModel(imageUri);
+                            imageModelList.add(imageModel);
+
+
+                        }
+                        imageAdapter = new UploadImageAdapter(imageModelList);
+                        recyclerView.setAdapter(imageAdapter);
+                        imageAdapter.notifyDataSetChanged();
+                    }
+
+                }
+            }
+        });
+
+
 
         selectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,6 +100,7 @@ public class UploadImageActivity extends AppCompatActivity {
                 Intent galleryIntent = new Intent();
                 galleryIntent.setType("image/*");
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+//                galleryIntent.setAction(Intent.ACTION_PICK);
                 galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 startActivityForResult(Intent.createChooser(galleryIntent, "Select Picture"), 1);
 
@@ -80,21 +111,7 @@ public class UploadImageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-//                final StorageReference storageReference2 = storageReference1.child("demo.jpg");
-//                storageReference2.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//                    @Override
-//                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                        storageReference2.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-//                            @Override
-//                            public void onSuccess(Uri uri) {
-//                                Map<String, Object> updateData = new HashMap<>();
-//                                updateData.put("uploadpic", uri.toString());
-//                                Glide.with(UploadImageActivity.this).load(uri).into(imageView);
-//                                UpdateFilds(user,updateData);
-//                            }
-//                        });
-//                    }
-//                });
+
             }
         });
     }
@@ -119,10 +136,9 @@ public class UploadImageActivity extends AppCompatActivity {
 
                         imageAdapter = new UploadImageAdapter(imageModelList);
                         recyclerView.setAdapter(imageAdapter);
-
-
+                        int x = totalpic;
                         StorageReference mRef = storageReference1.child("image").child(imagename);
-                        int finalI = i;
+
                         mRef.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -131,35 +147,76 @@ public class UploadImageActivity extends AppCompatActivity {
                                         @Override
                                         public void onSuccess(Uri uri) {
                                             Map<String, Object> updateData = new HashMap<>();
-                                            updateData.put("uploadpic"+finalI, uri.toString());
-                                            updateData.put("uploadpicName"+finalI,imagename);
-                                            UpdateFilds(user, updateData);
+                                            updateData.put("uploadpic"+(x), uri.toString());
+                                            updateData.put("uploadpicName"+(x),imagename);
+                                            updateData.put("picAvailable",(boolean)true);
+                                            UpdateFilds(user,updateData);
                                         }
                                     });
+
+//
                                 } else {
 
                                 }
 
                             }
                         });
-
-
+                        totalpic = totalpic+1;
                     }
+                    Map<String, Object> dataup = new HashMap<>();
+                    dataup.put("totalPic",totalpic);
+                    FirebaseFirestore.getInstance().collection("USERS")
+                            .document(user.getUid()).update(dataup).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+
+                        }
+                    });
                 }
-//                else if (data.getData() != null) {
-//
-//                }
+                else if (data.getData() != null) {
+                    imageUri = data.getData();
+                    String imagename = GetFileName(imageUri);
+                    UploadImageModel imageModel = new UploadImageModel(imageUri.toString());
+                    imageModelList.add(imageModel);
 
+                    imageAdapter = new UploadImageAdapter(imageModelList);
+                    recyclerView.setAdapter(imageAdapter);
 
-//                if (data != null) {
-//                    imageUri = data.getData();
-//                    if (imageUri != null){
-//                        Glide.with(this).load(imageUri).into(imageView);
-//                    }
-//                } else {
-//                    Toast.makeText(this, "Image not found", Toast.LENGTH_SHORT).show();
-//                }
+                    int y = totalpic;
 
+                    StorageReference mRef = storageReference1.child("image").child(imagename);
+                    mRef.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                mRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Map<String, Object> updateData = new HashMap<>();
+                                        updateData.put("uploadpic"+(y), uri.toString());
+                                        updateData.put("uploadpicName"+(y),imagename);
+                                        updateData.put("picAvailable",(boolean)true);
+                                        UpdateFilds(user,updateData);
+                                    }
+                                });
+
+                            } else {
+
+                            }
+
+                        }
+                    });
+                    totalpic = totalpic+1;
+                    Map<String, Object> dataup = new HashMap<>();
+                    dataup.put("totalPic",totalpic);
+                    FirebaseFirestore.getInstance().collection("USERS")
+                            .document(user.getUid()).update(dataup).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+
+                        }
+                    });
+                }
 
             }
         }
@@ -168,12 +225,11 @@ public class UploadImageActivity extends AppCompatActivity {
 
     public void UpdateFilds(FirebaseUser user, final Map<String, Object> updateData) {
         FirebaseFirestore.getInstance().collection("USERS")
-                .document(user.getUid()).set(updateData)
+                .document(user.getUid()).update(updateData)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-
                             Toast.makeText(UploadImageActivity.this, "Successfully updated", Toast.LENGTH_SHORT).show();
                         } else {
                             String error = task.getException().getMessage();
