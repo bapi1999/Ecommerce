@@ -6,12 +6,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -28,6 +30,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.sbdevs.ecommerce.R;
+import com.sbdevs.ecommerce.activities.ProductDetailActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,9 +48,14 @@ public class UploadImageActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private List<UploadImageModel> imageModelList = new ArrayList<>();
-    private UploadImageAdapter imageAdapter;
+    public static UploadImageAdapter imageAdapter;
+
     private int totalpic;
     private boolean edit=false;
+    public List<Uri> uriList = new ArrayList<Uri>();
+    public List<String> nameList = new ArrayList<String>();
+    private Dialog loadingDialog;
+    public static final List<String> Already_added_name_List = new ArrayList<String>();
 
 
     @Override
@@ -60,9 +68,19 @@ public class UploadImageActivity extends AppCompatActivity {
         storageReference1 = storage.getReference();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
+
+        //loading dialog
+        loadingDialog = new Dialog(this);
+        loadingDialog.setContentView(R.layout.ast_loading_progress_dialog);
+        loadingDialog.setCancelable(false);
+        loadingDialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.s_bigslider_background));
+        loadingDialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        //loading dialog
+
+
         uploadBtn = findViewById(R.id.upload_button);
         selectBtn = findViewById(R.id.select_button);
-
         recyclerView = findViewById(R.id.uploaded_recycler);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3, GridLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(gridLayoutManager);
@@ -78,8 +96,10 @@ public class UploadImageActivity extends AppCompatActivity {
                     if (edit){
                         for (int i = 0;i< (long)task.getResult().get("totalPic");i++){
                             String imageUri = task.getResult().get("uploadpic"+i).toString();
-                            UploadImageModel imageModel = new UploadImageModel(imageUri);
+                            String imagename = task.getResult().get("uploadpic"+i).toString();
+                            UploadImageModel imageModel = new UploadImageModel(imageUri,imagename);
                             imageModelList.add(imageModel);
+                            Already_added_name_List.add(imagename);
 
 
                         }
@@ -100,7 +120,6 @@ public class UploadImageActivity extends AppCompatActivity {
                 Intent galleryIntent = new Intent();
                 galleryIntent.setType("image/*");
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-//                galleryIntent.setAction(Intent.ACTION_PICK);
                 galleryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 startActivityForResult(Intent.createChooser(galleryIntent, "Select Picture"), 1);
 
@@ -110,6 +129,7 @@ public class UploadImageActivity extends AppCompatActivity {
         uploadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                UpdateImages();
 
 
             }
@@ -119,125 +139,107 @@ public class UploadImageActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-//        imageModelList.clear();
-
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
 
                 if (data.getClipData() != null) {
                     int totalImage = data.getClipData().getItemCount();
+
                     for (int i = 0; i < totalImage; i++) {
                         imageUri = data.getClipData().getItemAt(i).getUri();
                         String imagename = GetFileName(imageUri);
 
-                        UploadImageModel imageModel = new UploadImageModel(imageUri.toString());
-                        imageModelList.add(imageModel);
+                        uriList.add(imageUri);
+                        nameList.add(imagename);
 
+                        UploadImageModel imageModel = new UploadImageModel(imageUri.toString(),imagename);
+                        imageModelList.add(imageModel);
                         imageAdapter = new UploadImageAdapter(imageModelList);
                         recyclerView.setAdapter(imageAdapter);
-                        int x = totalpic;
-                        StorageReference mRef = storageReference1.child("image").child(imagename);
 
-                        mRef.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    mRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            Map<String, Object> updateData = new HashMap<>();
-                                            updateData.put("uploadpic"+(x), uri.toString());
-                                            updateData.put("uploadpicName"+(x),imagename);
-                                            updateData.put("picAvailable",(boolean)true);
-                                            UpdateFilds(user,updateData);
-                                        }
-                                    });
-
-//
-                                } else {
-
-                                }
-
-                            }
-                        });
-                        totalpic = totalpic+1;
                     }
-                    Map<String, Object> dataup = new HashMap<>();
-                    dataup.put("totalPic",totalpic);
-                    FirebaseFirestore.getInstance().collection("USERS")
-                            .document(user.getUid()).update(dataup).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
 
-                        }
-                    });
                 }
                 else if (data.getData() != null) {
                     imageUri = data.getData();
                     String imagename = GetFileName(imageUri);
-                    UploadImageModel imageModel = new UploadImageModel(imageUri.toString());
-                    imageModelList.add(imageModel);
 
+                    if (uriList.size() == 0){
+                        uriList.add(imageUri);
+                        nameList.add(imagename);
+                    }else {
+                        uriList.clear();
+                        nameList.clear();
+                        uriList.add(imageUri);
+                        nameList.add(imagename);
+                    }
+                    UploadImageModel imageModel = new UploadImageModel(imageUri.toString(),imagename);
+                    imageModelList.add(imageModel);
                     imageAdapter = new UploadImageAdapter(imageModelList);
                     recyclerView.setAdapter(imageAdapter);
 
-                    int y = totalpic;
-
-                    StorageReference mRef = storageReference1.child("image").child(imagename);
-                    mRef.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                mRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        Map<String, Object> updateData = new HashMap<>();
-                                        updateData.put("uploadpic"+(y), uri.toString());
-                                        updateData.put("uploadpicName"+(y),imagename);
-                                        updateData.put("picAvailable",(boolean)true);
-                                        UpdateFilds(user,updateData);
-                                    }
-                                });
-
-                            } else {
-
-                            }
-
-                        }
-                    });
-                    totalpic = totalpic+1;
-                    Map<String, Object> dataup = new HashMap<>();
-                    dataup.put("totalPic",totalpic);
-                    FirebaseFirestore.getInstance().collection("USERS")
-                            .document(user.getUid()).update(dataup).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-
-                        }
-                    });
                 }
 
             }
         }
     }
 
+    public void UpdateImages( ){
+        for (int i= 0; i<uriList.size();i++) {
+            loadingDialog.show();
+            int x = totalpic;
+            StorageReference mRef = storageReference1.child("image").child(nameList.get(i));
+            int finalI = i;
+            mRef.putFile(uriList.get(i)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        mRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Map<String, Object> updateData = new HashMap<>();
+                                updateData.put("uploadpic" + (x), uri.toString());
+                                updateData.put("uploadpicName" + (x), nameList.get(finalI));
+                                updateData.put("picAvailable", (boolean) true);
+//                                UpdateFilds(user, updateData);
+                                firebaseFirestore.collection("USERS")
+                                        .document(user.getUid()).update(updateData)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    Toast.makeText(UploadImageActivity.this, "Successfully updated "+(finalI+1), Toast.LENGTH_SHORT).show();
+                                                    Already_added_name_List.add(nameList.get(finalI));
+                                                    loadingDialog.dismiss();
+                                                    if (finalI==uriList.size()-1){
+                                                        uriList.clear();
+                                                        nameList.clear();
+                                                    }
+                                                } else {
+                                                    String error = task.getException().getMessage();
+                                                    Toast.makeText(UploadImageActivity.this, error, Toast.LENGTH_SHORT).show();
+                                                }
 
-    public void UpdateFilds(FirebaseUser user, final Map<String, Object> updateData) {
-        FirebaseFirestore.getInstance().collection("USERS")
-                .document(user.getUid()).update(updateData)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(UploadImageActivity.this, "Successfully updated", Toast.LENGTH_SHORT).show();
-                        } else {
-                            String error = task.getException().getMessage();
-                            Toast.makeText(UploadImageActivity.this, error, Toast.LENGTH_SHORT).show();
-                        }
-                        //loadingDialog.dismiss();
+                                            }
+                                        });
+                            }
+                        });
+                    } else {
+                        //error toast
                     }
-                });
+                }
+            });
+            totalpic = totalpic+1;
+        }
+        Map<String, Object> dataup = new HashMap<>();
+        dataup.put("totalPic",totalpic);
+        FirebaseFirestore.getInstance().collection("USERS")
+                .document(user.getUid()).update(dataup).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+            }
+        });
+
     }
 
     public String GetFileName(Uri uri) { // for image names
@@ -260,5 +262,41 @@ public class UploadImageActivity extends AppCompatActivity {
             }
         }
         return result;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Already_added_name_List.clear();
+    }
+
+    private void RemoveMethode(int index){
+        final Uri removedPhotoUri = uriList.get(index);
+        final String removedPhotoName = nameList.get(index);
+        uriList.remove(index);
+        nameList.remove(index);
+        int x = totalpic;
+        Map<String,Object> updateMap = new HashMap<>();
+        for (int i=0;i<uriList.size();i++){
+            updateMap.put("uploadpic" + (i), uriList.get(i));
+            updateMap.put("uploadpicName" + (i), nameList.get(i));
+            x--;
+        }
+        updateMap.put("totalPic",x);
+        FirebaseFirestore.getInstance().collection("USERS")
+                .document(user.getUid()).set(updateMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Already_added_name_List.remove(index);
+                    imageAdapter.notifyDataSetChanged();
+                }else {
+                    Toast.makeText(UploadImageActivity.this, "error", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+
     }
 }

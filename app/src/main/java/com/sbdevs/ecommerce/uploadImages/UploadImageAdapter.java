@@ -4,11 +4,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.sbdevs.ecommerce.R;
 import com.sbdevs.ecommerce.adapters.CartItemAdapter;
@@ -41,7 +43,8 @@ public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.
     @Override
     public void onBindViewHolder(@NonNull  ViewHolder holder, int position) {
         String images = list.get(position).getImages();
-        holder.setImages(images);
+        String imageName = list.get(position).getImageName();
+        holder.setImages(images,imageName,position);
 
     }
 
@@ -58,9 +61,22 @@ public class UploadImageAdapter extends RecyclerView.Adapter<UploadImageAdapter.
             super(itemView);
             imageView = itemView.findViewById(R.id.uploaded_image);
         }
-        private void setImages(String images){
-            Glide.with(imageView.getContext()).load(images).into(imageView);
-            //Glide.with(imageView.getContext()).load(uri).into(imageView);
+        private void setImages(String images,String imageName,int position){
+            Glide.with(imageView.getContext()).load(images).apply(new RequestOptions().placeholder(R.drawable.as_square_placeholder)).into(imageView);
+            //Glide.with(imageView.getContext()).load(R.drawable.as_square_placeholder).into(imageView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(position< UploadImageActivity.Already_added_name_List.size()){
+                        Toast.makeText(itemView.getContext(), "Number "+position+" is uploaded", Toast.LENGTH_SHORT).show();
+//                        UploadImageActivity.Already_added_name_List.remove(position);
+                    }else {
+                        Toast.makeText(itemView.getContext(), "Number "+position+" offline", Toast.LENGTH_SHORT).show();
+
+                    }
+
+                }
+            });
         }
     }
 }
